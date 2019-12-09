@@ -25,27 +25,30 @@ def create_weather_api(controller, args):
 
         @ttl_cache(maxsize=1, ttl=60 * 60)
         def get_current(self):
-            return requests.get(
+            data = requests.get(
                 "http://dataservice.accuweather.com/currentconditions/v1/{0}?apikey={1}".format(
                     self.location_key, self.api_key
                 )
             ).json()
+            return data
 
         @ttl_cache(maxsize=1, ttl=60 * 60)
         def get_next_day(self):
-            return requests.get(
+            data = requests.get(
                 "http://dataservice.accuweather.com/forecasts/v1/daily/1day/{0}?apikey={1}".format(
                     self.location_key, self.api_key
                 )
             ).json()
+            return data
 
         @ttl_cache(maxsize=1, ttl=60 * 60)
         def get_previous_day(self):
-            return requests.get(
+            data = requests.get(
                 "http://dataservice.accuweather.com/currentconditions/v1/{0}/historical/24?details=true&apikey={1}".format(
                     self.location_key, self.api_key
                 )
             ).json()
+            return data
 
     return api()
 

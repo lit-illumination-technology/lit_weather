@@ -4,6 +4,7 @@ import logging
 RAIN_COLOR = (0, 5, 15)
 TODAY_COLOR = (0, 20, 0)
 YESTERDAY_COLOR = (20, 0, 0)
+EQUAL_COLOR = (20, 20, 0)  # For overlaps
 CURRENT_COLOR = (15, 15, 15)
 PADDING = 0.05
 logger = logging.getLogger(__name__)
@@ -28,7 +29,11 @@ def update(lights, step, state):
     today_temps = today_details["DailyForecasts"][0]["Temperature"]
     today_low = today_temps["Minimum"]["Value"]
     today_high = today_temps["Maximum"]["Value"]
-    today_precip = today_details["DailyForecasts"][0]["Day"]["HasPrecipitation"]
+    today_precip = (
+        today_details["DailyForecasts"][0]["Day"]["HasPrecipitation"]
+        or today_details["DailyForecasts"][0]["Night"]["HasPrecipitation"]
+    )
+
     if today_precip:
         lights.set_all_pixels(*RAIN_COLOR)
     else:
@@ -42,8 +47,15 @@ def update(lights, step, state):
     def temp_to_pixel(temp):
         return int((temp - total_min) * scale + PADDING_PIXELS)
 
-    lights.set_pixel(temp_to_pixel(today_low), *TODAY_COLOR)
-    lights.set_pixel(temp_to_pixel(today_high), *TODAY_COLOR)
-    lights.set_pixel(temp_to_pixel(yesterday_low), *YESTERDAY_COLOR)
-    lights.set_pixel(temp_to_pixel(yesterday_high), *YESTERDAY_COLOR)
-    lights.set_pixel(temp_to_pixel(current_temp), *CURRENT_COLOR)
+    today_pixels = [temp_to_pixel(temp) for temp in (today_low, today_high)]
+    yesterday_pixels = [temp_to_pixel(temp) for temp in (yesterday_low, yesterday_high)]
+    overlap_pixels = set(today_pixels) & set(yesterday_pixels)
+    for pixel in today_pixels:
+        lights.set_pixel(pixel, *TODAY_COLOR)
+    for pixel in yesterday_pixels:
+        lights.set_pixel(pixel, *YESTERDAY_COLOR)
+    for pixel in overlap_pixels:
+        lights.set_pixel(pixel, *EQUAL_COLOR)
+
+    if (step // 30) % 2 == 0:
+        lights.set_pixel(temp_to_pixel(current_temp), *CURRENT_COLOR)
