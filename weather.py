@@ -41,8 +41,8 @@ def update(lights, step, state):
     total_min = min(today_low, yesterday_low, current_temp)
     total_max = max(today_high, yesterday_high, current_temp)
 
-    PADDING_PIXELS = PADDING * lights.num_leds
-    scale = (lights.num_leds - PADDING_PIXELS * 2) / (total_max - total_min)
+    PADDING_PIXELS = PADDING * lights.size
+    scale = (lights.size - PADDING_PIXELS * 2) / (total_max - total_min)
 
     def temp_to_pixel(temp):
         return int((temp - total_min) * scale + PADDING_PIXELS)
