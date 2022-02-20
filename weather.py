@@ -36,8 +36,6 @@ def update(lights, step, state):
 
     if today_precip:
         lights.set_all_pixels(*RAIN_COLOR)
-    else:
-        lights.set_all_pixels(0, 0, 0)
     total_min = min(today_low, yesterday_low, current_temp)
     total_max = max(today_high, yesterday_high, current_temp)
 
